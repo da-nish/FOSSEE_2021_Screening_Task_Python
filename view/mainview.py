@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QHeaderView
-from PyQt5 import QtCore
+from PyQt5.QtCore import pyqtSlot
 from view.ui import Ui_MainWindow
 
 
@@ -9,21 +9,28 @@ class View(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-
+        self._model = model
         self._controller = controller
         self.setHeader()
+        self.setIDs()
 
-
-
-
-        # self.ui.updateHeader(self._controller.header)
-
-        # if self._controller.current_section != self.ui.comboBox.currentIndex():
-        #     self.ui.pushButton.clicked.connect(self.setHead)
-
+        # DISPLAY SECTION
         self.ui.pushButton.clicked.connect(lambda:self._controller.change_display(self.ui.comboBox.currentIndex()))
         self.ui.pushButton.clicked.connect(self.setHeader)
 
+        # APPEND SECTION
+        self.ui.comboBox_2.currentTextChanged.connect(lambda: self._controller.change_append(self.ui.comboBox_2.currentIndex()))
+        self.ui.comboBox_2.currentTextChanged.connect(self.setIDs)
+
+        self.ui.pushButton_2.clicked.connect(lambda: self._controller.append_data(self.ui.comboBox_2.currentIndex(), self.ui.comboBox_3.currentText()))
+        try:
+            self._model.append.connect(self.updated)
+        except Exception as e:
+            print(e)
+
+    @pyqtSlot(int)
+    def updated(self):
+        print(' === ')
 
     def setHeader(self):
         # self.ui.table.setRowCount(len(self._controller.header))
@@ -41,8 +48,9 @@ class View(QMainWindow):
 
         # Table will fit the screen horizontally
         self.ui.tableWidget.horizontalHeader().setStretchLastSection(True)
-        self.ui.tableWidget.horizontalHeader().setSectionResizeMode(
-            QHeaderView.Stretch)
+        self.ui.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
 
-
+    def setIDs(self):
+        self.ui.comboBox_3.clear()
+        self.ui.comboBox_3.addItems(self._controller.excel_IDs)

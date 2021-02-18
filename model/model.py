@@ -1,36 +1,65 @@
-
+from PyQt5.QtCore import QObject, pyqtSignal
 import sqlite3
 
-class Model(object):
-	"""docstring for Model"""
-	def __init__(self):
-		super(Model, self).__init__()
-		self.table_name = {0: "Angles", 1: "Beams", 2: "Channels"}
-	
-	def getRecord(self, index):
 
-		conn = sqlite3.connect('steel_sections.sqlite')
-		cursor = conn.execute("SELECT * from "+self.table_name.get(index))
-		record = []
-		for row in cursor:
-			record.append(list(row))
-		header = list(map(lambda x: x[0], cursor.description))
-		return record, header
+class Model(QObject):
+    """docstring for Model"""
 
-	# def isExist(self, index, id):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.table= { 0: {'name': "Angles", 'max-col': 24},
+                           1: {'name': 'Beams', 'max-col': 20},
+                           2: {'name': 'Channels', 'max-col': 21}
+                        }
 
-	# 	conn = sqlite3.connect('steel_sections.sqlite')
-	# 	cursor = conn.execute("SELECT count(id) from "+self.table_name.get(index)+" where id=?", (id,))
-	# 	exist = cursor.fetchone()[0]
-	# 	print(exist)
-	# 	if exist == 0:
-	# 		return False
+    def getRecord(self, index):
+        conn = sqlite3.connect('steel_sections.sqlite')
+        cursor = conn.execute("SELECT * from " + self.table.get(index).get('name'))
+        record = []
+        for row in cursor:
+            record.append(list(row))
+        header = list(map(lambda x: x[0], cursor.description))
+        conn.close()
+        print(header)
+        return record, header
 
-	# 	# true,if exist
-	# 	return True
+    @property
+    def apppend_record(self, index, record):
+
+        insert_query = {
+            0: "INSERT INTO Angles('Designation', 'Mass','Area', 'AXB', 't', 'R1', 'R2', 'Cz', 'Cy', 'Tan?', 'Iz', 'Iy', 'Iu(max)', 'Iv(min)', 'rz', 'ry', 'ru(max)', 'rv(min)', 'Zz', 'Zy', 'Zpz', 'Zpy', 'Source') VALUES( ?, ?, ?,?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?,?, ?)",
+            1: "INSERT INTO Beams('Designation', 'Mass', 'Area', 'D', 'B', 'tw', 'T', 'FlangeSlope', 'R1', 'R2', 'Iz', 'Iy', 'rz','ry', 'Zz', 'Zy', 'Zpz', 'Zpy', 'Source') VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?,?, ?, ?, ?)",
+            2: "INSERT INTO Channels('Designation', 'Mass', 'Area', 'D', 'B', 'tw', 'T', 'FlangeSlope', 'R1', 'R2', 'Cy', 'Iz', 'Iy', 'rz', 'ry', 'Zz', 'Zy', 'Zpz', 'Zpy', 'Source') VALUES( ?, ?, ?,?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?)"
+        }
+        record = record[0:self.table.get(index).get('max-col')-1]  # -1, excluding id
+
+        try:
+            conn = sqlite3.connect('steel_sections.sqlite')
+            cur = conn.cursor()
+
+            cur.execute(insert_query.get(index), record)
+            conn.commit()
+            return True
+
+        except Exception as e:
+            print(e)
+            return False
 
 
-if __name__=="__main__":
-	mod = Model()
-	rec,head = mod.getRecord(0)
-	print(head)
+# def isExist(self, index, id):
+
+# 	conn = sqlite3.connect('steel_sections.sqlite')
+# 	cursor = conn.execute("SELECT count(id) from "+self.table_name.get(index)+" where id=?", (id,))
+# 	exist = cursor.fetchone()[0]
+# 	print(exist)
+# 	if exist == 0:
+# 		return False
+
+# 	# true,if exist
+# 	return True
+
+
+if __name__ == "__main__":
+    mod = Model()
+    rec, head = mod.getRecord(0)
+    print(head)
