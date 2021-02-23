@@ -15,11 +15,18 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(808, 587)
+        # MainWindow.resize(808, 587)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
+
+        # sizePolicy.setHorizontalStretch(0)
+        # sizePolicy.setVerticalStretch(0)
+        # sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
         MainWindow.setSizePolicy(sizePolicy)
+
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("./osdag_icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        MainWindow.setWindowIcon(icon)
+
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
@@ -67,7 +74,7 @@ class Ui_MainWindow(object):
         self.label.setObjectName("label")
         self.tableWidget = QtWidgets.QTableWidget(self.centralwidget)
         self.tableWidget.setEnabled(True)
-        self.tableWidget.setGeometry(QtCore.QRect(10, 150, 781, 381))
+        self.tableWidget.setGeometry(QtCore.QRect(10, 150, 781, 391))
         self.tableWidget.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.tableWidget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.tableWidget.setObjectName("tableWidget")
@@ -92,7 +99,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Osdag"))
         self.groupBox.setTitle(_translate("MainWindow", "Display"))
         self.comboBox.setItemText(0, _translate("MainWindow", "Angles"))
         self.comboBox.setItemText(1, _translate("MainWindow", "Beams"))

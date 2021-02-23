@@ -1,12 +1,15 @@
+from PyQt5.QtCore import pyqtSignal, QObject
 from openpyxl import load_workbook
 
-class Controller(object):
+class Controller(QObject):
     """docstring for Controller"""
+    update_signal = pyqtSignal(int)
 
     def __init__(self, model):
         super(Controller, self).__init__()
-        self._model = model
 
+
+        self._model = model
         self.SHOW_CONSOLE = False  # Toggle console output
         self.header = []
         self.record = []
@@ -30,7 +33,6 @@ class Controller(object):
     def change_append(self, index):
         if self.current_section_append == index:
             return
-
         self.wb.active = self.sheet_combobox_index.get(index)
         sheet = self.wb.active
         self.current_section_append = index
@@ -71,6 +73,7 @@ class Controller(object):
         isexit, row = self.is_exist_id(index, id)
         if not isexit:
             self.console([row])
+            self.console(['Error:', row, '(on is_exist_id method)'])
 
         # converting row object to string list
         record = []
@@ -85,12 +88,17 @@ class Controller(object):
                     record.append(r)
 
         record.pop(0) # removing id
-        if self._model.apppend_record(index, record):
-            print("Success !!")
-        else:
-            print("Fail !!")
+        try:
+            if self._model.append_record(index, record):
+                self.console(["Append: Success !!"])
+                self.change_display(index)
+                self.update_signal.emit(index)
 
-        # return True
+            else:
+                self.console(["Append: Fail !!"])
+        except Exception as e:
+            self.console(['Error:', e, '(on append)'])
+            # return True
 
 
     def console(self, arg):

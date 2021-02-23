@@ -11,10 +11,11 @@ class App(QApplication):
         # Connect everything together
         self.model = Model()
         self.ctrl = Controller(self.model)
-        self.view = View(self.model, self.ctrl)
+        self.view = View(self.ctrl)
         self.view.show()
 
 
 if __name__ == '__main__':
+    print("Running...")
     app = App(sys.argv)
     sys.exit(app.exec_())

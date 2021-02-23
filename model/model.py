@@ -7,10 +7,10 @@ class Model(QObject):
 
     def __init__(self):
         super(Model, self).__init__()
-        self.table= { 0: {'name': "Angles", 'max-col': 24},
-                           1: {'name': 'Beams', 'max-col': 20},
-                           2: {'name': 'Channels', 'max-col': 21}
-                        }
+        self.table = {0: {'name': "Angles", 'max-col': 24},
+                      1: {'name': 'Beams', 'max-col': 20},
+                      2: {'name': 'Channels', 'max-col': 21}
+                      }
 
     def getRecord(self, index):
         conn = sqlite3.connect('steel_sections.sqlite')
@@ -20,18 +20,16 @@ class Model(QObject):
             record.append(list(row))
         header = list(map(lambda x: x[0], cursor.description))
         conn.close()
-        print(header)
         return record, header
 
-    @property
-    def apppend_record(self, index, record):
+    def append_record(self, index, record):
 
         insert_query = {
             0: "INSERT INTO Angles('Designation', 'Mass','Area', 'AXB', 't', 'R1', 'R2', 'Cz', 'Cy', 'Tan?', 'Iz', 'Iy', 'Iu(max)', 'Iv(min)', 'rz', 'ry', 'ru(max)', 'rv(min)', 'Zz', 'Zy', 'Zpz', 'Zpy', 'Source') VALUES( ?, ?, ?,?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?,?, ?)",
             1: "INSERT INTO Beams('Designation', 'Mass', 'Area', 'D', 'B', 'tw', 'T', 'FlangeSlope', 'R1', 'R2', 'Iz', 'Iy', 'rz','ry', 'Zz', 'Zy', 'Zpz', 'Zpy', 'Source') VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?,?, ?, ?, ?)",
             2: "INSERT INTO Channels('Designation', 'Mass', 'Area', 'D', 'B', 'tw', 'T', 'FlangeSlope', 'R1', 'R2', 'Cy', 'Iz', 'Iy', 'rz', 'ry', 'Zz', 'Zy', 'Zpz', 'Zpy', 'Source') VALUES( ?, ?, ?,?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?)"
         }
-        record = record[0:self.table.get(index).get('max-col')-1]  # -1, excluding id
+        record = record[0:self.table.get(index).get('max-col') - 1]  # -1, excluding id
 
         try:
             conn = sqlite3.connect('steel_sections.sqlite')
@@ -44,19 +42,6 @@ class Model(QObject):
         except Exception as e:
             print(e)
             return False
-
-
-# def isExist(self, index, id):
-
-# 	conn = sqlite3.connect('steel_sections.sqlite')
-# 	cursor = conn.execute("SELECT count(id) from "+self.table_name.get(index)+" where id=?", (id,))
-# 	exist = cursor.fetchone()[0]
-# 	print(exist)
-# 	if exist == 0:
-# 		return False
-
-# 	# true,if exist
-# 	return True
 
 
 if __name__ == "__main__":
