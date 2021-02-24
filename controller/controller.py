@@ -23,8 +23,6 @@ class Controller(QObject):
         self.change_display(0)
 
     def change_display(self, index):
-        if self.current_section_display == index:
-            return
 
         self.record, self.header = self._model.getRecord(index)
         self.current_section_display = index
@@ -33,18 +31,20 @@ class Controller(QObject):
     def change_append(self, index):
         if self.current_section_append == index:
             return
-        self.wb.active = self.sheet_combobox_index.get(index)
-        sheet = self.wb.active
-        self.current_section_append = index
+        try:
+            self.wb.active = self.sheet_combobox_index.get(index)
+            sheet = self.wb.active
+            self.current_section_append = index
 
-        ignore_first = True
-        tempID = []
-        for row in sheet.rows:
-            if ignore_first:  # ignoring excel header row
-                ignore_first = False
-                continue
-            tempID.append(str(int(row[0].value)))
-
+            ignore_first = True
+            tempID = []
+            for row in sheet.rows:
+                if ignore_first:  # ignoring excel header row
+                    ignore_first = False
+                    continue
+                tempID.append(str(int(row[0].value)))
+        except Exception as e:
+            print("//",e)
         self.excel_IDs = tempID
 
     # check - ui selected id with section
