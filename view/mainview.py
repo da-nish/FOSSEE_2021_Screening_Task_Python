@@ -15,7 +15,7 @@ class View(QMainWindow):
         self.setIDs()
 
         # DISPLAY SECTION
-        self.ui.pushButton.clicked.connect(lambda:self._controller.change_display(self.ui.comboBox.currentIndex()))
+        self.ui.pushButton.clicked.connect(lambda: self._controller.change_display(self.ui.comboBox.currentIndex()))
         self.ui.pushButton.clicked.connect(self.setTable)
 
 
@@ -25,9 +25,16 @@ class View(QMainWindow):
 
         self.ui.pushButton_2.clicked.connect(lambda: self._controller.append_data(self.ui.comboBox_2.currentIndex(), self.ui.comboBox_3.currentText()))
         self._controller.update_signal.connect(self.update)
+        self._controller.alert_signal.connect(self.alert)
 
         self.set_status_bar()
 
+
+    # we data already exit in db
+    @pyqtSlot(str)
+    def alert(self, msg):
+        self.ui.tableWidget.selectRow(0)  # grey background
+        self.set_status_bar(msg, is_alert=True)  # updating status bar
 
     # On success append: display appended section
     @pyqtSlot(int)
@@ -62,13 +69,9 @@ class View(QMainWindow):
         else:
             self.set_status_bar("Displaying "+self.ui.comboBox.currentText())  # updating status bar
 
-
-
         # Table will fit the screen horizontally
         self.ui.tableWidget.horizontalHeader().setStretchLastSection(True)
         self.ui.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-
-
 
     # setting ids in dropdown of append section(current selected)
     # displaying excel id column in dropdown
@@ -76,5 +79,10 @@ class View(QMainWindow):
         self.ui.comboBox_3.clear()
         self.ui.comboBox_3.addItems(self._controller.excel_IDs)
 
-    def set_status_bar(self, msg="Welcome"):
+    # update status bar
+    def set_status_bar(self, msg="Welcome", is_alert=False):
         self.ui.statusbar.showMessage(msg)
+
+        self.ui.statusbar.setStyleSheet('background: transparent')
+        if is_alert:
+            self.ui.statusbar.setStyleSheet('background: pink')

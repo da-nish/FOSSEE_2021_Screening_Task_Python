@@ -4,13 +4,14 @@ from openpyxl import load_workbook
 class Controller(QObject):
     """docstring for Controller"""
     update_signal = pyqtSignal(int)
+    alert_signal = pyqtSignal(str)
 
     def __init__(self, model):
         super(Controller, self).__init__()
 
 
         self._model = model
-        self.SHOW_CONSOLE = False  # Toggle console output
+        self.SHOW_CONSOLE = True  # Toggle console output
         self.header = []
         self.record = []
         self.excel_IDs = []
@@ -26,6 +27,7 @@ class Controller(QObject):
 
         self.record, self.header = self._model.getRecord(index)
         self.current_section_display = index
+        self.console(['display:', self._model.table.get(index).get('name')])
 
 
     def change_append(self, index):
@@ -44,7 +46,7 @@ class Controller(QObject):
                     continue
                 tempID.append(str(int(row[0].value)))
         except Exception as e:
-            print("//",e)
+            self.console(['Error:', e, '(on change_append method)'])
         self.excel_IDs = tempID
 
     # check - ui selected id with section
@@ -52,7 +54,7 @@ class Controller(QObject):
 
         self.wb.active = self.sheet_combobox_index.get(index)
         sheet = self.wb.active
-        self.console([sheet])
+        self.console(['current active:', sheet])
 
         ignore_first = True
         for row in sheet.iter_rows(max_col = 24):
@@ -75,13 +77,19 @@ class Controller(QObject):
             self.console([row])
             self.console(['Error:', row, '(on is_exist_id method)'])
 
+
+        if self._model.is_exist(index, row[1]):
+            self.console(['Alert: This record already exist'])
+            self.alert_signal.emit('This record already exist in our database')
+            return
+
         # converting row object to string list
         record = []
         for r in row:
             try:
                 record.append(r.value)
             except Exception as e:
-                print(r, e)
+                self.console(['Error:', r, e, '(on append_data)'])
                 if r.value == '':
                     record.append(None)
                 else:
@@ -104,7 +112,6 @@ class Controller(QObject):
     def console(self, arg):
         if self.SHOW_CONSOLE is False:
             return
-
         for msg in arg:
             print(msg, ' ', end='')
         print()

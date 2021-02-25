@@ -22,6 +22,20 @@ class Model(QObject):
         conn.close()
         return record, header
 
+    def is_exist(self, index, designation):
+
+        conn = sqlite3.connect('steel_sections.sqlite')
+        cursor = conn.execute("SELECT designation from " + self.table.get(index).get('name'))
+
+        for row in cursor:
+            if designation.value == row[0]:
+                conn.close()
+                return True  # exist
+
+        conn.close()
+        return False  # not exist
+
+
     def append_record(self, index, record):
 
         insert_query = {
